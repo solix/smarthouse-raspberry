@@ -1,9 +1,29 @@
-import picamera
-from time import sleep
-with picamera.PiCamera() as camera:
-    camera.resolution = (1024, 768)
-    camera.start_preview()
-    camera.start_recording('/home/pi/video.h264')
-    sleep(10)
-    camera.stop_recording()
-    camera.stop_preview()
+# import the necessary packages
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import time
+import cv2
+ 
+# initialize the camera and grab a reference to the raw camera capture
+camera = PiCamera()
+camera.resolution = (640, 480)
+camera.framerate = 32
+rawCapture = PiRGBArray(camera, size=(640, 480))
+ 
+# allow the camera to warmup
+time.sleep(0.1)
+ 
+# capture frames from the camera
+for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+	# grab the raw NumPy array representing the image, then initialize the timestamp
+	# and occupied/unoccupied text
+	image = frame.array
+ 	# yuv=cv2.cvtColor(image, cv2.Color_BGR2YUV)
+ 	cv2.rectangle(image, (10, 10), (300, 400), (255,0,0), 2)
+ 
+	# clear the stream in preparation for the next frame
+	rawCapture.truncate(0)
+ 
+	# if the `q` key was pressed, break from the loop
+	if key == ord("q"):
+		break
